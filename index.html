@@ -1,0 +1,128 @@
+<canvas id="canvas" width="600" height="600"></canvas>
+<style>
+	#canvas {
+		margin:  auto;
+		display: block;
+		padding:  0;
+
+	}
+</style>
+<script>
+const sun = new Image();
+const moon = new Image();
+const earth = new Image();
+const mars = new Image();
+function init() {
+  sun.src = "canvas_sun.png";
+  moon.src = "canvas_moon.png";
+  earth.src = "canvas_earth.png";
+  mars.src = "canvas_mars.png";
+  window.requestAnimationFrame(draw);
+}
+
+const ctx = document.getElementById("canvas").getContext("2d");
+function orbitAndRotate(time, denomOne, denomTwo, transX, transY, func)
+{
+	if(func)
+	{
+		(func(time))?ctx.rotate(
+    		((2 * Math.PI) / denomOne) * time.getSeconds() +
+      		((2 * Math.PI) / denomTwo) * time.getMilliseconds()): ctx.rotate(
+    		((2 * Math.PI) / denomOne) * time.getSeconds() +
+      		((2 * Math.PI) / denomTwo) * time.getMilliseconds() + Math.PI
+      		);
+	}
+	else
+	{
+	ctx.rotate(
+    ((2 * Math.PI) / denomOne) * time.getSeconds() +
+      ((2 * Math.PI) / denomTwo) * time.getMilliseconds()
+  );
+	}
+  if(!(transX==undefined) && !(transY==undefined))
+  	ctx.translate(transX, transY);
+}
+function draw() {
+  ctx.globalCompositeOperation = "destination-over";
+  ctx.clearRect(0, 0, 600, 600); // clear canvas
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+  ctx.strokeStyle = "rgba(0, 153, 255, 0.4)";
+  ctx.save();
+  ctx.translate(300, 300);
+
+  // Earth
+  const time = new Date();
+  
+  orbitAndRotate(time, 60, 60000,105,0)
+
+  ctx.fillRect(0, -12, 40, 24); // Shadow
+  orbitAndRotate(time, 12, 12000 );
+  ctx.drawImage(earth, -12, -12);
+   ctx.rotate(-(((2 * Math.PI) /12) * time.getSeconds() +
+      ((2 * Math.PI) / 12000) * time.getMilliseconds()));
+
+  // Moon
+  ctx.save();
+  
+  orbitAndRotate(time, 6, 6000, 0, 28.5);
+  ctx.drawImage(moon, -3.5, -3.5);
+  ctx.restore();
+
+  ctx.restore();
+
+//mars
+  ctx.save();
+  ctx.translate(300, 300);
+  
+  orbitAndRotate(time, 120, 120000, 180, 0, (time)=>{if (time.getMinutes() %2 == 0)
+  	return true;
+  	else
+  	return false})
+  ctx.fillRect(0, -32, 80, 64); // Shadow
+  
+  orbitAndRotate(time, 30, 30000);
+  ctx.drawImage(mars, -32, -32, 64, 64);
+    ctx.rotate(-(((2 * Math.PI) /30) * time.getSeconds() +
+      ((2 * Math.PI) / 30000) * time.getMilliseconds()));
+
+
+  ctx.save();
+
+  //phobos
+ 
+  orbitAndRotate(time, 6, 6000, 0, 38.5);
+  ctx.drawImage(moon, -3.5, -3.5);
+
+  ctx.restore();
+
+
+//deimos
+  orbitAndRotate(time, 12, 12000, 0, 48.5);
+  ctx.drawImage(moon, -3.5, -3.5);
+  ctx.restore();
+
+
+  ctx.restore();
+
+  //travel paths
+
+  ctx.beginPath();
+  ctx.arc(300, 300, 105, 0, Math.PI * 2, false); // Earth orbit
+  ctx.stroke();
+  ctx.closePath();
+  ctx.beginPath();
+  ctx.strokeStyle = 'pink';
+  ctx.arc(300, 300, 180, 0, Math.PI * 2, false);
+  ctx.stroke();
+  ctx.closePath();
+
+
+
+  ctx.drawImage(sun, 0, 0, 600, 600);
+
+  window.requestAnimationFrame(draw);
+}
+
+init();
+</script>
